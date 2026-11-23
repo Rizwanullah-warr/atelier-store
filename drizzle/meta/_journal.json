@@ -15,6 +15,34 @@
       "when": 1795348817127,
       "tag": "0001_storefront_and_auth",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795413844754,
+      "tag": "0002_product_variants",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795417654926,
+      "tag": "0003_orders",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795424804122,
+      "tag": "0004_admin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795428169817,
+      "tag": "0005_accounts",
+      "breakpoints": true
     }
   ]
 }

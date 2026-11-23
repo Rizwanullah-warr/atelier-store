@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { getInfoPage, infoHref, infoPages } from "@/lib/info-pages";
 
@@ -15,8 +16,37 @@ export async function generateMetadata(
   return page ? { title: `${page.title} | Atelier Store` } : {};
 }
 
-export default async function InfoPage(props: PageProps<"/info/[slug]">) {
-  const page = getInfoPage((await props.params).slug);
+// `params` is URL data, so it is read inside <Suspense>; every info page is
+// prerendered, so the fallback only covers a client navigation in progress.
+export default function InfoPage(props: PageProps<"/info/[slug]">) {
+  return (
+    <Suspense fallback={<InfoSkeleton />}>
+      <InfoContent params={props.params} />
+    </Suspense>
+  );
+}
+
+function InfoSkeleton() {
+  return (
+    <div
+      aria-hidden
+      className="mx-auto grid max-w-[1600px] animate-pulse gap-12 px-4 pb-24 pt-12 md:grid-cols-[220px_1fr] md:px-8 md:pt-20"
+    >
+      <div className="order-2 h-32 md:order-1" />
+      <div className="order-1 max-w-2xl md:order-2">
+        <div className="h-12 w-2/3 bg-surface md:h-14" />
+        <div className="mt-10 h-24 bg-surface" />
+      </div>
+    </div>
+  );
+}
+
+async function InfoContent({
+  params,
+}: {
+  params: PageProps<"/info/[slug]">["params"];
+}) {
+  const page = getInfoPage((await params).slug);
   if (!page) notFound();
 
   const related = infoPages.filter(

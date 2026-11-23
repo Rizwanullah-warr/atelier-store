@@ -5,6 +5,8 @@ import { CartProvider } from "@/components/cart/cart-context";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { WishlistProvider } from "@/components/wishlist/wishlist-context";
+import { getPaymentMode } from "@/lib/stripe";
 
 import "./globals.css";
 
@@ -31,11 +33,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${display.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        <CartProvider>
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
-          <CartDrawer />
+        <CartProvider paymentMode={getPaymentMode()}>
+          <WishlistProvider>
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <SiteFooter />
+            <CartDrawer />
+          </WishlistProvider>
         </CartProvider>
       </body>
     </html>

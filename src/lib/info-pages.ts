@@ -84,7 +84,7 @@ export const infoPages: InfoPage[] = [
     group: "Client Services",
     sections: [
       {
-        body: "Order tracking will be available once online checkout launches. No orders can be placed yet, so there is nothing to track.",
+        body: "If you checked out while signed in, every order and its status is listed under Account, in Orders. If you checked out as a guest, your order is shown on the confirmation page you saw after paying, so keep that page for your records. Shipment tracking numbers are not available yet.",
       },
     ],
     cta: { label: "Go to My Account", href: "/account" },
@@ -98,7 +98,7 @@ export const infoPages: InfoPage[] = [
         body: "Atelier makes considered clothing and accessories in small runs, chosen to be worn for years rather than seasons.",
       },
     ],
-    cta: { label: "Shop New In", href: "/shop/new-in" },
+    cta: { label: "Shop New In", href: "/new-arrivals" },
   },
   {
     slug: "craftsmanship",

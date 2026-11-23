@@ -4,17 +4,20 @@ import { detail, unsplash } from "@/lib/sample-data";
 
 export type CategorySeed = { slug: string; name: string; sortOrder: number };
 
+// Stock is one number for one-size products, or one number per size.
+export type ColorSeed = { name: string; hex: string; stock: number | number[] };
+
 export type ProductSeed = {
   slug: string;
   name: string;
   categorySlug: string;
   priceCents: number;
-  color: string;
-  stock: number;
   isNew?: boolean;
   audience: "women" | "men" | "unisex";
   isGift?: boolean;
+  // Empty means one size.
   sizes: string[];
+  colors: ColorSeed[];
   description: string;
   details: string[];
   images: string[];
@@ -39,11 +42,11 @@ export const productSeeds: ProductSeed[] = [
     name: "Fringed Knit Poncho",
     categorySlug: "knitwear",
     priceCents: 690_00,
-    color: "Ivory",
-    stock: 12,
     audience: "women",
     isGift: true,
     sizes: [],
+    // The first colour is the one photographed.
+    colors: [{ name: "Ivory", hex: "#EFE8DA", stock: 12 }, { name: "Sand", hex: "#CDB89A", stock: 5 }],
     isNew: true,
     description:
       "An open-stitch poncho knitted from a soft cotton blend, finished with a knotted fringe along the hem. Light enough to layer over a shirt, warm enough for late evenings.",
@@ -65,10 +68,10 @@ export const productSeeds: ProductSeed[] = [
     name: "Biker Leather Jacket",
     categorySlug: "outerwear",
     priceCents: 2450_00,
-    color: "Black",
-    stock: 2,
     audience: "unisex",
     sizes: ["XS", "S", "M", "L", "XL"],
+    // The first colour is the one photographed.
+    colors: [{ name: "Black", hex: "#1C1C1C", stock: [0, 1, 2, 1, 0] }, { name: "Cognac", hex: "#8A4B2A", stock: [1, 2, 0, 1, 0] }],
     description:
       "A close-fitting biker jacket cut from supple lambskin, with an asymmetric zip, snap-down lapels and zipped pockets. It softens and takes on your shape with wear.",
     details: [
@@ -89,10 +92,10 @@ export const productSeeds: ProductSeed[] = [
     name: "Suede Bomber Jacket",
     categorySlug: "outerwear",
     priceCents: 1890_00,
-    color: "Terracotta",
-    stock: 0,
     audience: "unisex",
     sizes: ["XS", "S", "M", "L", "XL"],
+    // The first colour is the one photographed.
+    colors: [{ name: "Terracotta", hex: "#B5553A", stock: [0, 0, 0, 0, 0] }],
     isNew: true,
     description:
       "A lightweight bomber with a soft sheen, ribbed hem and cuffs, and a utility pocket on the sleeve. Cut slightly boxy to sit easily over knitwear.",
@@ -114,10 +117,10 @@ export const productSeeds: ProductSeed[] = [
     name: "Pleated Jogging Trousers",
     categorySlug: "ready-to-wear",
     priceCents: 520_00,
-    color: "Blush",
-    stock: 8,
     audience: "women",
     sizes: ["XS", "S", "M", "L", "XL"],
+    // The first colour is the one photographed.
+    colors: [{ name: "Blush", hex: "#E4B9B0", stock: [1, 2, 3, 2, 0] }],
     description:
       "Tailored joggers in washed satin with an elasticated waist, patch pockets and gathered cuffs. Dress them up with heels or down with a knit.",
     details: [
@@ -138,11 +141,11 @@ export const productSeeds: ProductSeed[] = [
     name: "Top Handle Bag",
     categorySlug: "bags",
     priceCents: 2890_00,
-    color: "Petrol Blue",
-    stock: 1,
     audience: "women",
     isGift: true,
     sizes: [],
+    // The first colour is the one photographed.
+    colors: [{ name: "Petrol Blue", hex: "#1F4E5F", stock: 1 }],
     description:
       "A structured top handle bag in pebbled calfskin, closed with a polished push-lock. Carry it by hand or wear it on the detachable shoulder strap.",
     details: [
@@ -163,10 +166,10 @@ export const productSeeds: ProductSeed[] = [
     name: "Suede Derby Shoes",
     categorySlug: "shoes",
     priceCents: 890_00,
-    color: "Sage",
-    stock: 6,
     audience: "men",
     sizes: ["40", "41", "42", "43", "44", "45"],
+    // The first colour is the one photographed.
+    colors: [{ name: "Sage", hex: "#9AA58A", stock: [1, 1, 2, 1, 1, 0] }, { name: "Tan", hex: "#B08458", stock: [0, 2, 2, 1, 0, 1] }],
     description:
       "Brogued derbies in soft calf suede on a stacked leather heel. Goodyear-welted, so they can be resoled for years to come.",
     details: [
@@ -187,11 +190,11 @@ export const productSeeds: ProductSeed[] = [
     name: "Round Metal Sunglasses",
     categorySlug: "eyewear",
     priceCents: 410_00,
-    color: "Gold / Green",
-    stock: 20,
     audience: "unisex",
     isGift: true,
     sizes: [],
+    // The first colour is the one photographed.
+    colors: [{ name: "Gold / Green", hex: "#B49A54", stock: 20 }, { name: "Silver / Grey", hex: "#A7A9AC", stock: 8 }],
     isNew: true,
     description:
       "Slim round frames in gold-tone metal with green mineral glass lenses. A light, timeless shape that suits most faces.",
@@ -213,11 +216,11 @@ export const productSeeds: ProductSeed[] = [
     name: "Sapphire Drop Earrings",
     categorySlug: "jewelry",
     priceCents: 1150_00,
-    color: "Silver / Blue",
-    stock: 4,
     audience: "women",
     isGift: true,
     sizes: [],
+    // The first colour is the one photographed.
+    colors: [{ name: "Silver / Blue", hex: "#5470A8", stock: 4 }],
     description:
       "Statement drop earrings set with a pear-cut blue stone framed by baguette and round crystals. Made for evenings.",
     details: [
@@ -238,11 +241,11 @@ export const productSeeds: ProductSeed[] = [
     name: "Belted Wool Coat",
     categorySlug: "outerwear",
     priceCents: 2150_00,
-    color: "Powder Blue",
-    stock: 5,
     isNew: true,
     audience: "women",
     sizes: ["XS", "S", "M", "L", "XL"],
+    // The first colour is the one photographed.
+    colors: [{ name: "Powder Blue", hex: "#A9C1DA", stock: [1, 1, 1, 1, 1] }, { name: "Camel", hex: "#C19A6B", stock: [2, 3, 3, 2, 1] }],
     description:
       "A long, softly tailored coat in double-faced wool, worn open or cinched at the waist. Dropped shoulders and deep patch pockets keep it relaxed.",
     details: [
@@ -262,10 +265,10 @@ export const productSeeds: ProductSeed[] = [
     name: "Checked Wool Overcoat",
     categorySlug: "outerwear",
     priceCents: 1980_00,
-    color: "Forest Check",
-    stock: 3,
     audience: "women",
     sizes: ["XS", "S", "M", "L", "XL"],
+    // The first colour is the one photographed.
+    colors: [{ name: "Forest Check", hex: "#2F4A3A", stock: [0, 1, 1, 1, 0] }],
     description:
       "An oversized overcoat in a dark windowpane check, with notch lapels and a single-breasted front. Cut generously to layer over knitwear.",
     details: [
@@ -285,11 +288,11 @@ export const productSeeds: ProductSeed[] = [
     name: "Floral Wrap Dress",
     categorySlug: "dresses",
     priceCents: 760_00,
-    color: "Ivory Floral",
-    stock: 9,
     isNew: true,
     audience: "women",
     sizes: ["XS", "S", "M", "L", "XL"],
+    // The first colour is the one photographed.
+    colors: [{ name: "Ivory Floral", hex: "#F1EADF", stock: [2, 2, 2, 2, 1] }],
     description:
       "A fluid wrap dress in printed crêpe de chine with a tie waist and short sleeves. The skirt moves beautifully with every step.",
     details: [
@@ -309,10 +312,10 @@ export const productSeeds: ProductSeed[] = [
     name: "Off-Shoulder Evening Dress",
     categorySlug: "dresses",
     priceCents: 1290_00,
-    color: "Plum",
-    stock: 2,
     audience: "women",
     sizes: ["XS", "S", "M", "L"],
+    // The first colour is the one photographed.
+    colors: [{ name: "Plum", hex: "#5B2A45", stock: [0, 1, 1, 0] }, { name: "Black", hex: "#1C1C1C", stock: [1, 1, 1, 1] }],
     description:
       "A sculpted evening dress in compact rib knit with a wide off-shoulder neckline. It holds its shape while following the body.",
     details: [
@@ -332,11 +335,11 @@ export const productSeeds: ProductSeed[] = [
     name: "Navy Wool Suit Jacket",
     categorySlug: "tailoring",
     priceCents: 1650_00,
-    color: "Midnight Navy",
-    stock: 7,
     isNew: true,
     audience: "men",
     sizes: ["S", "M", "L", "XL"],
+    // The first colour is the one photographed.
+    colors: [{ name: "Midnight Navy", hex: "#1F2A44", stock: [1, 2, 3, 1] }],
     description:
       "A single-breasted suit jacket in fine wool twill, half-canvassed for a soft, natural shoulder. Pair it with the matching trousers or wear it alone.",
     details: [
@@ -356,10 +359,10 @@ export const productSeeds: ProductSeed[] = [
     name: "Two-Piece Cotton Suit",
     categorySlug: "tailoring",
     priceCents: 1890_00,
-    color: "Royal Blue",
-    stock: 0,
     audience: "men",
     sizes: ["S", "M", "L", "XL"],
+    // The first colour is the one photographed.
+    colors: [{ name: "Royal Blue", hex: "#2B4BA0", stock: [0, 0, 0, 0] }],
     description:
       "A lightweight two-piece suit in stretch cotton, with a soft-shouldered jacket and slim, cropped trousers. Made for warm-weather events.",
     details: [

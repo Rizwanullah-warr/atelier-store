@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { ProductRow } from "@/components/home/product-row";
 import { AddToBag } from "@/components/product/add-to-bag";
@@ -37,10 +38,49 @@ const services = [
   "Signature gift packaging",
 ];
 
-export default async function ProductPage(
-  props: PageProps<"/products/[slug]">,
-) {
-  const { slug } = await props.params;
+// `params` is URL data, so it is read inside <Suspense>. Known slugs are
+// prerendered (generateStaticParams) and never show the fallback on a page
+// load; it only covers client navigations to a product not yet prefetched.
+export default function ProductPage(props: PageProps<"/products/[slug]">) {
+  return (
+    <Suspense fallback={<ProductSkeleton />}>
+      <ProductContent params={props.params} />
+    </Suspense>
+  );
+}
+
+function ProductSkeleton() {
+  return (
+    <div
+      aria-hidden
+      className="mx-auto max-w-[1600px] animate-pulse px-4 md:px-8"
+    >
+      <div className="py-5">
+        <div className="h-3 w-48 bg-surface" />
+      </div>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_480px]">
+        <div className="grid gap-2 lg:grid-cols-2">
+          <div className="aspect-[3/4] bg-surface" />
+          <div className="hidden aspect-[3/4] bg-surface lg:block" />
+        </div>
+        <div className="lg:py-6">
+          <div className="h-3 w-24 bg-surface" />
+          <div className="mt-4 h-10 w-3/4 bg-surface" />
+          <div className="mt-5 h-5 w-20 bg-surface" />
+          <div className="mt-8 h-28 border-t border-line" />
+          <div className="h-12 bg-surface" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+async function ProductContent({
+  params,
+}: {
+  params: PageProps<"/products/[slug]">["params"];
+}) {
+  const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
@@ -85,7 +125,11 @@ export default async function ProductPage(
             <dl className="mt-8 border-t border-line text-sm">
               {product.color && (
                 <div className="flex justify-between border-b border-line py-4">
-                  <dt className="text-muted">Colour</dt>
+                  <dt className="text-muted">
+                    {new Set(product.variants.map((v) => v.color)).size > 1
+                      ? "Shown in"
+                      : "Colour"}
+                  </dt>
                   <dd>{product.color}</dd>
                 </div>
               )}

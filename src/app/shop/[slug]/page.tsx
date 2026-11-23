@@ -41,8 +41,47 @@ export async function generateMetadata(
   };
 }
 
-export default async function ShopPage(props: PageProps<"/shop/[slug]">) {
-  const { slug } = await props.params;
+// `params` is URL data, so it is read inside <Suspense>. Known slugs are
+// prerendered (generateStaticParams); the fallback only covers client
+// navigations to a listing that has not been prefetched yet.
+export default function ShopPage(props: PageProps<"/shop/[slug]">) {
+  return (
+    <Suspense fallback={<ListingSkeleton />}>
+      <ListingContent params={props.params} searchParams={props.searchParams} />
+    </Suspense>
+  );
+}
+
+function ListingSkeleton() {
+  return (
+    <div
+      aria-hidden
+      className="mx-auto max-w-[1600px] animate-pulse px-4 md:px-8"
+    >
+      <div className="py-5">
+        <div className="h-3 w-32 bg-surface" />
+      </div>
+      <div className="pb-10 pt-4 md:pb-14">
+        <div className="h-3 w-20 bg-surface" />
+        <div className="mt-4 h-12 w-64 bg-surface md:h-16" />
+        <div className="mt-5 h-4 w-80 max-w-full bg-surface" />
+      </div>
+      <div className="h-[4.5rem] border-y border-line" />
+      <div className="py-10 md:py-14">
+        <ProductGridSkeleton />
+      </div>
+    </div>
+  );
+}
+
+async function ListingContent({
+  params,
+  searchParams,
+}: {
+  params: PageProps<"/shop/[slug]">["params"];
+  searchParams: PageProps<"/shop/[slug]">["searchParams"];
+}) {
+  const { slug } = await params;
   const listing = await getListing(slug);
   if (!listing) notFound();
 
@@ -72,7 +111,7 @@ export default async function ShopPage(props: PageProps<"/shop/[slug]">) {
 
       {/* Filters, sort and page come from the URL, which is request-time data. */}
       <Suspense fallback={<ProductGridSkeleton />}>
-        <ListingResults listing={listing} searchParams={props.searchParams} />
+        <ListingResults listing={listing} searchParams={searchParams} />
       </Suspense>
     </div>
   );

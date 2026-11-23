@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { CartButton } from "@/components/cart/cart-button";
-import { SearchIcon, UserIcon } from "@/components/icons";
-import { MainNav } from "@/components/main-nav";
+import { HeartIcon, SearchIcon, UserIcon } from "@/components/icons";
+import { MainNav, MainNavFallback } from "@/components/main-nav";
 import { MobileMenu } from "@/components/mobile-menu";
 
 export function SiteHeader() {
@@ -34,11 +35,16 @@ export function SiteHeader() {
           <Link href="/account" aria-label="Account" className="hidden sm:block">
             <UserIcon />
           </Link>
+          <Link href="/wishlist" aria-label="Wishlist" className="hidden sm:block">
+            <HeartIcon />
+          </Link>
           <CartButton />
         </div>
       </div>
 
-      <MainNav />
+      <Suspense fallback={<MainNavFallback />}>
+        <MainNav />
+      </Suspense>
     </header>
   );
 }

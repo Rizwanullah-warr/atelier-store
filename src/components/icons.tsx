@@ -50,3 +50,12 @@ export const ArrowRightIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="M4 12h16m-6-6 6 6-6 6" />
   </svg>
 );
+
+export const HeartIcon = ({
+  filled = false,
+  ...props
+}: SVGProps<SVGSVGElement> & { filled?: boolean }) => (
+  <svg {...base} {...props} fill={filled ? "currentColor" : "none"}>
+    <path d="M12 20.5s-8-4.9-8-11A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5c0 6.1-8 11-8 11Z" />
+  </svg>
+);

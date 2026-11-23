@@ -62,7 +62,7 @@ export const curatedListings: Listing[] = [
 ];
 
 export const navItems = [
-  { label: "New In", href: "/shop/new-in" },
+  { label: "New In", href: "/new-arrivals" },
   { label: "Women", href: "/shop/women" },
   { label: "Men", href: "/shop/men" },
   { label: "Bags", href: "/shop/bags" },
