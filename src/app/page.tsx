@@ -20,7 +20,7 @@ export default async function Home() {
         eyebrow="Just In"
         title="New Arrivals"
         products={newArrivals}
-        viewAllHref="/shop/new-in"
+        viewAllHref="/new-arrivals"
       />
       <FeaturedCollections />
       <EditorialSplit />
