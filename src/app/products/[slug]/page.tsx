@@ -18,7 +18,9 @@ import {
   getProductBySlug,
   getRelatedProducts,
 } from "@/db/queries/products";
-import { formatPrice } from "@/lib/product-utils";
+import { getReviewSummary } from "@/db/queries/reviews";
+import { formatPrice, type ProductDetail } from "@/lib/product-utils";
+import { siteUrl } from "@/lib/site";
 
 export async function generateStaticParams() {
   const slugs = await getAllProductSlugs();
@@ -35,6 +37,12 @@ export async function generateMetadata(
   return {
     title: `${product.name} | Atelier Store`,
     description: product.description,
+    alternates: { canonical: `/products/${product.slug}` },
+    openGraph: {
+      title: product.name,
+      description: product.description,
+      images: product.images[0] ? [{ url: product.images[0] }] : undefined,
+    },
   };
 }
 
@@ -213,8 +221,45 @@ async function ProductContent({
         products={related}
         viewAllHref={`/shop/${product.category.slug}`}
       />
+      <ProductJsonLd product={product} />
       <RecordView slug={product.slug} />
       <RecentlyViewed excludeSlug={product.slug} />
     </>
+  );
+}
+
+// Structured data so search engines can show price, stock and rating.
+async function ProductJsonLd({ product }: { product: ProductDetail }) {
+  const summary = await getReviewSummary(product.slug);
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: product.images,
+    brand: { "@type": "Brand", name: "Atelier" },
+    category: product.category.name,
+    offers: {
+      "@type": "Offer",
+      url: `${siteUrl}/products/${product.slug}`,
+      priceCurrency: "USD",
+      price: (product.priceCents / 100).toFixed(2),
+      availability:
+        product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    },
+    ...(summary.count > 0 && {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: summary.average,
+        reviewCount: summary.count,
+      },
+    }),
+  };
+  return (
+    <script
+      type="application/ld+json"
+      // Escape "<" so product text can't close the script tag.
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, String.raw`\u003c`) }}
+    />
   );
 }

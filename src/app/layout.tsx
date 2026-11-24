@@ -6,6 +6,7 @@ import { CartDrawer } from "@/components/cart/cart-drawer";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { WishlistProvider } from "@/components/wishlist/wishlist-context";
+import { siteUrl } from "@/lib/site";
 import { getPaymentMode } from "@/lib/stripe";
 
 import "./globals.css";
@@ -22,8 +23,15 @@ const display = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Atelier Store",
   description: "Considered clothing and accessories.",
+  openGraph: {
+    siteName: "Atelier Store",
+    type: "website",
+    title: "Atelier Store",
+    description: "Considered clothing and accessories.",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -74,6 +74,8 @@ Discovery and reviews:
 - Recently viewed: slugs in `localStorage` (`atelier-recently-viewed`), cards loaded fresh through the `getProductCards` server action (`src/lib/product-actions.ts`). Shown on product pages and the homepage.
 - Reviews: `reviews` table (one per customer per product). Public reads are cached with tag `reviews` (`src/db/queries/reviews.ts`); writing requires a paid order containing the product, re-checked inside `src/lib/review-actions.ts`.
 
+Launch: `src/app/sitemap.ts` (public pages; draft info pages excluded), `src/app/robots.ts` (blocks admin/account/checkout/api/wishlist/search), `metadataBase` from `NEXT_PUBLIC_APP_URL` (`src/lib/site.ts`), product Open Graph image and Product JSON-LD on `/products/[slug]` (escape `<` with ``String.raw`<` ``), `src/app/error.tsx` (uses Next 16 `retry()`) and `src/app/global-error.tsx`.
+
 Path alias: `@/*` maps to `src/*`. App Router with `src/` directory.
 
 ## Design system
