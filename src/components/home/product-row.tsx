@@ -11,14 +11,14 @@ export function ProductRow({
   eyebrow: string;
   title: string;
   products: StorefrontProduct[];
-  viewAllHref: string;
+  viewAllHref?: string;
 }) {
   return (
     <section className="mx-auto max-w-[1600px] px-4 py-16 md:px-8 md:py-24">
       <SectionHeading
         eyebrow={eyebrow}
         title={title}
-        link={{ label: "View All", href: viewAllHref }}
+        link={viewAllHref ? { label: "View All", href: viewAllHref } : undefined}
       />
 
       <div className="grid grid-cols-2 gap-x-3 gap-y-10 lg:grid-cols-4 lg:gap-x-6">

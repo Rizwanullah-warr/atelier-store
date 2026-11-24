@@ -220,9 +220,50 @@ const sortOrder = {
   "price-desc": [desc(products.priceCents), desc(products.createdAt)],
 } satisfies Record<SortOption, SQL[]>;
 
+// Shopper-chosen filters from the URL (sizes, colours, stock, price).
+export type ListingRefine = {
+  sizes: string[];
+  colors: string[];
+  inStock: boolean;
+  minCents: number | null;
+  maxCents: number | null;
+};
+
+const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL"];
+const sizeRank = (size: string) => {
+  const named = SIZE_ORDER.indexOf(size);
+  if (named !== -1) return named;
+  const numeric = Number(size);
+  return Number.isFinite(numeric) ? 100 + numeric : 1000;
+};
+
+// A product matches when at least one of its variants fits the chosen sizes,
+// colours and stock; price filters apply to the product price.
+const refineConditions = (refine: ListingRefine) => {
+  const conditions: SQL[] = [];
+  const variantChecks: SQL[] = [];
+  if (refine.sizes.length) variantChecks.push(inArray(productVariants.size, refine.sizes));
+  if (refine.colors.length) variantChecks.push(inArray(productVariants.color, refine.colors));
+  if (refine.inStock) variantChecks.push(sql`${productVariants.stock} > 0`);
+  if (variantChecks.length) {
+    conditions.push(
+      sql`exists (select 1 from ${productVariants} where ${productVariants.productId} = ${products.id} and ${and(...variantChecks)})`,
+    );
+  }
+  if (refine.minCents !== null) conditions.push(sql`${products.priceCents} >= ${refine.minCents}`);
+  if (refine.maxCents !== null) conditions.push(sql`${products.priceCents} <= ${refine.maxCents}`);
+  return conditions;
+};
+
 export async function getListingProducts(
   filter: ListingFilter,
-  options: { category?: string; sort: SortOption; page: number; pageSize: number },
+  options: {
+    category?: string;
+    sort: SortOption;
+    page: number;
+    pageSize: number;
+    refine: ListingRefine;
+  },
 ) {
   "use cache";
   cacheLife("hours");
@@ -243,10 +284,38 @@ export async function getListingProducts(
   const category = facets.some((facet) => facet.slug === options.category)
     ? options.category
     : undefined;
-  const where = and(
-    ...base,
-    ...(category ? [eq(categories.slug, category)] : []),
+  const scope = and(...base, ...(category ? [eq(categories.slug, category)] : []));
+  const where = and(scope, ...refineConditions(options.refine));
+
+  // Sizes, colours and price range on offer in this listing (before refining).
+  const [options_, [priceRange]] = await Promise.all([
+    db
+      .selectDistinct({
+        size: productVariants.size,
+        color: productVariants.color,
+        colorHex: productVariants.colorHex,
+      })
+      .from(productVariants)
+      .innerJoin(products, eq(productVariants.productId, products.id))
+      .innerJoin(categories, eq(products.categoryId, categories.id))
+      .where(scope),
+    db
+      .select({
+        min: sql<number>`coalesce(min(${products.priceCents}), 0)::int`,
+        max: sql<number>`coalesce(max(${products.priceCents}), 0)::int`,
+      })
+      .from(products)
+      .innerJoin(categories, eq(products.categoryId, categories.id))
+      .where(scope),
+  ]);
+  const sizes = [...new Set(options_.flatMap((o) => (o.size ? [o.size] : [])))].sort(
+    (a, b) => sizeRank(a) - sizeRank(b) || a.localeCompare(b),
   );
+  const colorMap = new Map<string, string | null>();
+  for (const o of options_) if (!colorMap.has(o.color)) colorMap.set(o.color, o.colorHex);
+  const colors = [...colorMap]
+    .map(([name, hex]) => ({ name, hex }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const [{ total }] = await db
     .select({ total: count() })
@@ -270,6 +339,7 @@ export async function getListingProducts(
     pageCount,
     facets,
     category,
+    refineOptions: { sizes, colors, priceRange },
   };
 }
 

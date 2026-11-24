@@ -67,6 +67,13 @@ Accounts (wishlist, bag sync, addresses, email):
 - Email: `src/lib/email.ts` sends through Resend's HTTP API (`RESEND_API_KEY`, optional `EMAIL_FROM`). Without a key the reset and verification actions answer `not-configured` and the UI says no email was sent; Better Auth's reset/verification hooks are only enabled when the key exists (read at startup, so restart dev). Sign-in does not require a verified email. Reset requests give the same answer whether or not the address has an account; send failures are only in the server log. Resend only delivers to your own address until you verify a domain.
 - Checkout still collects the shipping address on Stripe; saved addresses are not used there yet.
 
+Discovery and reviews:
+
+- Shop filters live in the URL (`?size=&color=&stock=1&min=&max=`, dollars), parsed and validated by `parseRefine` in `src/lib/listings.ts` and applied in `getListingProducts` (a product matches if any variant fits size/colour/stock). The panel (`src/components/shop/listing-filters.tsx`) is a `next/form` GET form, so it works without JavaScript. Category, sort and pagination links keep the filters (`appendRefine`).
+- Search suggestions: `src/components/search/search-box.tsx` (combobox) calls `GET /api/search/suggest?q=` (cached `searchProducts`).
+- Recently viewed: slugs in `localStorage` (`atelier-recently-viewed`), cards loaded fresh through the `getProductCards` server action (`src/lib/product-actions.ts`). Shown on product pages and the homepage.
+- Reviews: `reviews` table (one per customer per product). Public reads are cached with tag `reviews` (`src/db/queries/reviews.ts`); writing requires a paid order containing the product, re-checked inside `src/lib/review-actions.ts`.
+
 Path alias: `@/*` maps to `src/*`. App Router with `src/` directory.
 
 ## Design system

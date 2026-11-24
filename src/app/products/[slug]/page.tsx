@@ -5,8 +5,14 @@ import { Suspense } from "react";
 
 import { ProductRow } from "@/components/home/product-row";
 import { AddToBag } from "@/components/product/add-to-bag";
+import { RecentlyViewed, RecordView } from "@/components/product/recently-viewed";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { StockStatus } from "@/components/product/stock-status";
+import {
+  ProductReviews,
+  ReviewComposer,
+  ReviewSummaryLink,
+} from "@/components/reviews/product-reviews";
 import {
   getAllProductSlugs,
   getProductBySlug,
@@ -121,6 +127,7 @@ async function ProductContent({
               {product.name}
             </h1>
             <p className="mt-4 text-lg">{formatPrice(product.priceCents)}</p>
+            <ReviewSummaryLink slug={product.slug} />
 
             <dl className="mt-8 border-t border-line text-sm">
               {product.color && (
@@ -181,12 +188,33 @@ async function ProductContent({
         </div>
       </div>
 
+      <section
+        id="reviews"
+        aria-labelledby="reviews-heading"
+        className="mx-auto grid max-w-[1600px] scroll-mt-40 gap-10 px-4 pt-20 md:px-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_480px]"
+      >
+        <div>
+          <h2 id="reviews-heading" className="label mb-6 text-muted">
+            Reviews
+          </h2>
+          <ProductReviews slug={product.slug} />
+        </div>
+        <div className="lg:pt-12">
+          {/* Who may review depends on the signed-in customer (request-time data). */}
+          <Suspense fallback={<div aria-hidden className="h-24 animate-pulse bg-surface" />}>
+            <ReviewComposer slug={product.slug} />
+          </Suspense>
+        </div>
+      </section>
+
       <ProductRow
         eyebrow="Complete the Look"
         title="You May Also Like"
         products={related}
         viewAllHref={`/shop/${product.category.slug}`}
       />
+      <RecordView slug={product.slug} />
+      <RecentlyViewed excludeSlug={product.slug} />
     </>
   );
 }

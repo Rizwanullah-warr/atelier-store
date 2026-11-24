@@ -85,3 +85,54 @@ export const parseSort = (value: unknown): SortOption =>
     : "newest";
 
 export const PAGE_SIZE = 8;
+
+// Shop filters live in the URL (?size=M&size=L&color=Black&stock=1&min=100&max=900)
+// so a filtered listing can be shared. Values are validated, never trusted.
+export type RefineParams = {
+  sizes: string[];
+  colors: string[];
+  inStock: boolean;
+  minCents: number | null;
+  maxCents: number | null;
+};
+
+type ParamValue = string | string[] | undefined;
+const all = (value: ParamValue) =>
+  (Array.isArray(value) ? value : value ? [value] : [])
+    .map((v) => v.trim())
+    .filter((v) => v.length > 0 && v.length <= 40);
+const dollars = (value: ParamValue) => {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return raw && /^\d{1,7}$/.test(raw.trim()) ? Number(raw.trim()) * 100 : null;
+};
+
+export function parseRefine(params: Record<string, ParamValue>): RefineParams {
+  let minCents = dollars(params.min);
+  let maxCents = dollars(params.max);
+  if (minCents !== null && maxCents !== null && minCents > maxCents) {
+    [minCents, maxCents] = [maxCents, minCents];
+  }
+  return {
+    // Sorted so the same filters always share one cache entry.
+    sizes: [...new Set(all(params.size))].slice(0, 12).sort(),
+    colors: [...new Set(all(params.color))].slice(0, 12).sort(),
+    inStock: (Array.isArray(params.stock) ? params.stock[0] : params.stock) === "1",
+    minCents,
+    maxCents,
+  };
+}
+
+export const refineCount = (refine: RefineParams) =>
+  refine.sizes.length +
+  refine.colors.length +
+  (refine.inStock ? 1 : 0) +
+  (refine.minCents !== null || refine.maxCents !== null ? 1 : 0);
+
+export function appendRefine(query: URLSearchParams, refine: RefineParams) {
+  for (const size of refine.sizes) query.append("size", size);
+  for (const color of refine.colors) query.append("color", color);
+  if (refine.inStock) query.set("stock", "1");
+  if (refine.minCents !== null) query.set("min", String(refine.minCents / 100));
+  if (refine.maxCents !== null) query.set("max", String(refine.maxCents / 100));
+  return query;
+}

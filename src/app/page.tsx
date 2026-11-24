@@ -2,6 +2,7 @@ import { EditorialSplit } from "@/components/home/editorial-split";
 import { FeaturedCollections } from "@/components/home/featured-collections";
 import { Hero } from "@/components/home/hero";
 import { ProductRow } from "@/components/home/product-row";
+import { RecentlyViewed } from "@/components/product/recently-viewed";
 import { ServicesStrip } from "@/components/home/services-strip";
 import { getNewArrivals, getProductsByCategorySlugs } from "@/db/queries/products";
 
@@ -30,6 +31,7 @@ export default async function Home() {
         products={accessories}
         viewAllHref="/shop/accessories"
       />
+      <RecentlyViewed />
       <ServicesStrip />
     </>
   );

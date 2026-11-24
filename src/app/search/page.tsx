@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
-import { SearchIcon } from "@/components/icons";
+import { SearchBox } from "@/components/search/search-box";
 import {
   ProductGrid,
   ProductGridSkeleton,
@@ -23,7 +23,7 @@ export default function SearchPage(props: PageProps<"/search">) {
       <header className="mx-auto max-w-2xl py-12 text-center md:py-20">
         <p className="label text-muted">Search</p>
         <h1 className="mt-3 font-serif text-5xl md:text-6xl">Find a Piece</h1>
-        <Suspense fallback={<SearchForm defaultValue="" />}>
+        <Suspense fallback={<SearchBox defaultValue="" />}>
           <SearchFormWithQuery searchParams={props.searchParams} />
         </Suspense>
       </header>
@@ -35,29 +35,6 @@ export default function SearchPage(props: PageProps<"/search">) {
   );
 }
 
-function SearchForm({ defaultValue }: { defaultValue: string }) {
-  return (
-    <form action="/search" role="search" className="mt-8 flex border-b border-ink">
-      <label htmlFor="search-query" className="sr-only">
-        Search products
-      </label>
-      <input
-        id="search-query"
-        name="q"
-        type="search"
-        defaultValue={defaultValue}
-        placeholder="Search coats, bags, jewelry…"
-        autoFocus
-        autoComplete="off"
-        className="h-14 flex-1 bg-transparent text-lg outline-none placeholder:text-muted"
-      />
-      <button type="submit" aria-label="Search" className="px-2">
-        <SearchIcon />
-      </button>
-    </form>
-  );
-}
-
 async function SearchFormWithQuery({
   searchParams,
 }: {
@@ -65,7 +42,7 @@ async function SearchFormWithQuery({
 }) {
   const query = firstValue((await searchParams).q);
   // key resets the uncontrolled input when the query changes.
-  return <SearchForm key={query} defaultValue={query} />;
+  return <SearchBox key={query} defaultValue={query} />;
 }
 
 async function SearchResults({

@@ -7,6 +7,7 @@ import {
   ProductGrid,
   ProductGridSkeleton,
 } from "@/components/product/product-grid";
+import { ListingFilters } from "@/components/shop/listing-filters";
 import { SortSelect } from "@/components/shop/sort-select";
 import {
   getCategories,
@@ -15,8 +16,11 @@ import {
 } from "@/db/queries/products";
 import {
   curatedListings,
+  appendRefine,
   PAGE_SIZE,
+  parseRefine,
   parseSort,
+  refineCount,
   type Listing,
   type SortOption,
 } from "@/lib/listings";
@@ -131,17 +135,22 @@ async function ListingResults({
   const sort = parseSort(firstValue(params.sort));
   const requestedPage = Number.parseInt(firstValue(params.page) ?? "1", 10);
 
-  const { products, total, page, pageCount, facets, category } =
+  const refine = parseRefine(params);
+
+  const { products, total, page, pageCount, facets, category, refineOptions } =
     await getListingProducts(listing.filter, {
       category: firstValue(params.category),
       sort,
       page: Number.isFinite(requestedPage) ? requestedPage : 1,
       pageSize: PAGE_SIZE,
+      refine,
     });
+  // Links keep the shopper's filters; changing category or sort starts at page 1.
   const hrefFor = (next: { category?: string; sort?: SortOption; page?: number }) => {
     const query = new URLSearchParams();
     if (next.category) query.set("category", next.category);
     if (next.sort && next.sort !== "newest") query.set("sort", next.sort);
+    appendRefine(query, refine);
     if (next.page && next.page > 1) query.set("page", String(next.page));
     const search = query.toString();
     return `/shop/${listing.slug}${search ? `?${search}` : ""}`;
@@ -178,14 +187,28 @@ async function ListingResults({
         <SortSelect value={sort} />
       </div>
 
+      <ListingFilters
+        action={`/shop/${listing.slug}`}
+        category={category}
+        sort={sort}
+        refine={refine}
+        sizes={refineOptions.sizes}
+        colors={refineOptions.colors}
+        priceRange={refineOptions.priceRange}
+      />
+
       <div className="py-10 md:py-14">
         {products.length > 0 ? (
           <ProductGrid products={products} />
         ) : (
           <div className="py-20 text-center">
-            <p className="font-serif text-3xl">Nothing here yet</p>
+            <p className="font-serif text-3xl">
+              {refineCount(refine) > 0 ? "No pieces match these filters" : "Nothing here yet"}
+            </p>
             <p className="mt-3 text-sm text-muted">
-              There are no pieces in this selection right now.
+              {refineCount(refine) > 0
+                ? "Try removing a filter, or clear them all."
+                : "There are no pieces in this selection right now."}
             </p>
             <Link href="/shop/all" className="btn btn-solid mt-8">
               Shop All
